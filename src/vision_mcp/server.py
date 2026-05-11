@@ -12,6 +12,7 @@ from vision_mcp.tools.grounding import detect_by_prompt
 from vision_mcp.tools.image_ops import crop_image, preprocess_image
 from vision_mcp.tools.ocr_tools import ocr_image, ocr_image_with_boxes
 from vision_mcp.tools.segmentation import segment_by_box
+from vision_mcp.tools.vlm_tools import answer_about_image, describe_image
 
 logger = logging.getLogger("vision_mcp")
 mcp = FastMCP("vision-mcp", log_level="INFO")
@@ -84,6 +85,36 @@ def vision_segment_by_box(
     Returns mask_path and confidence score.
     """
     result = segment_by_box(image_path=image_path, bbox=bbox, output_path=output_path)
+    return json.dumps(result, ensure_ascii=False)
+
+
+@mcp.tool()
+def vision_describe_image(
+    image_path: str,
+    length: str = "normal",
+) -> str:
+    """Generate a textual description of an image using Moondream VLM.
+
+    Args:
+        image_path: Path to the image file.
+        length: Detail level — 'short', 'normal' (default), or 'long'.
+    """
+    result = describe_image(image_path=image_path, length=length)
+    return json.dumps(result, ensure_ascii=False)
+
+
+@mcp.tool()
+def vision_answer_about_image(
+    image_path: str,
+    question: str,
+) -> str:
+    """Answer a natural-language question about an image using Moondream VLM.
+
+    Args:
+        image_path: Path to the image file.
+        question: The question to answer (e.g., "What color is the car?").
+    """
+    result = answer_about_image(image_path=image_path, question=question)
     return json.dumps(result, ensure_ascii=False)
 
 
