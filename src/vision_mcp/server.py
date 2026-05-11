@@ -8,6 +8,7 @@ import logging
 from mcp.server.fastmcp import FastMCP
 
 from vision_mcp.tools.detection import detect_objects
+from vision_mcp.tools.grounding import detect_by_prompt
 from vision_mcp.tools.image_ops import crop_image, preprocess_image
 from vision_mcp.tools.ocr_tools import ocr_image, ocr_image_with_boxes
 
@@ -81,6 +82,33 @@ def vision_detect_objects(
         labels=labels,
         confidence_threshold=confidence_threshold,
         max_detections=max_detections,
+    )
+    return json.dumps(result, ensure_ascii=False)
+
+
+@mcp.tool()
+def vision_detect_by_prompt(
+    image_path: str,
+    prompt: str,
+    box_threshold: float = 0.35,
+    text_threshold: float = 0.25,
+) -> str:
+    """Detect objects by natural language description using Grounding DINO.
+
+    Use this for finding objects that YOLO doesn't know: power strip, charger,
+    cable, logo, button, text region, etc.
+
+    Prompt format: separate objects with periods, e.g.:
+    "power strip . charger . cable . plug"
+
+    Returns:
+        JSON string with detected objects, each with label, confidence, and bbox.
+    """
+    result = detect_by_prompt(
+        image_path=image_path,
+        prompt=prompt,
+        box_threshold=box_threshold,
+        text_threshold=text_threshold,
     )
     return json.dumps(result, ensure_ascii=False)
 
