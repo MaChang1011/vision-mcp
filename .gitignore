@@ -1,0 +1,24 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.venv/
+venv/
+
+# Models / cache
+models/
+cache/
+*.pt
+*.onnx
+*.engine
+
+# Runtime outputs
+outputs/
+tmp/
+logs/
+
+# OS / editor
+.DS_Store
+.vscode/
+.idea/
