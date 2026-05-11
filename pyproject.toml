@@ -22,6 +22,7 @@ ocr = [
 detection = ["ultralytics"]
 opencv = ["opencv-python-headless"]
 grounding = ["groundingdino-py"]
+segmentation = ["segment-anything"]
 vlm = ["transformers", "torch", "accelerate"]
 dev = ["pytest", "ruff"]
 
