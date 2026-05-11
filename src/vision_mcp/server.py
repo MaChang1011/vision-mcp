@@ -11,6 +11,7 @@ from vision_mcp.tools.detection import detect_objects
 from vision_mcp.tools.grounding import detect_by_prompt
 from vision_mcp.tools.image_ops import crop_image, preprocess_image
 from vision_mcp.tools.ocr_tools import ocr_image, ocr_image_with_boxes
+from vision_mcp.tools.segmentation import segment_by_box
 
 logger = logging.getLogger("vision_mcp")
 mcp = FastMCP("vision-mcp", log_level="INFO")
@@ -39,82 +40,54 @@ def vision_preprocess_image(
     resize_height: int | None = None,
     denoise_strength: int = 10,
 ) -> str:
-    """Preprocess an image using OpenCV.
-
-    Supported operations: grayscale, denoise, resize.
-    """
+    """Preprocess an image using OpenCV. ops: grayscale, denoise, resize."""
     result = preprocess_image(
-        image_path=image_path,
-        operations=operations,
-        output_path=output_path,
-        resize_width=resize_width,
-        resize_height=resize_height,
-        denoise_strength=denoise_strength,
+        image_path=image_path, operations=operations, output_path=output_path,
+        resize_width=resize_width, resize_height=resize_height, denoise_strength=denoise_strength,
     )
     return json.dumps(result, ensure_ascii=False)
 
 
 @mcp.tool()
-def vision_crop_image(
-    image_path: str,
-    bbox: list[int],
-    output_path: str | None = None,
-) -> str:
-    """Crop an image by bbox [x1, y1, x2, y2] using OpenCV."""
+def vision_crop_image(image_path: str, bbox: list[int], output_path: str | None = None) -> str:
+    """Crop an image by bbox [x1, y1, x2, y2]."""
     result = crop_image(image_path=image_path, bbox=bbox, output_path=output_path)
     return json.dumps(result, ensure_ascii=False)
 
 
 @mcp.tool()
 def vision_detect_objects(
-    image_path: str,
-    labels: list[str] | None = None,
-    confidence_threshold: float = 0.25,
-    max_detections: int = 100,
+    image_path: str, labels: list[str] | None = None,
+    confidence_threshold: float = 0.25, max_detections: int = 100,
 ) -> str:
-    """Detect common objects in an image using YOLO.
-
-    Default label space: COCO 80 classes (person, car, dog, cat, ...).
-    Use `labels` to filter to specific classes.
-    """
-    result = detect_objects(
-        image_path=image_path,
-        labels=labels,
-        confidence_threshold=confidence_threshold,
-        max_detections=max_detections,
-    )
+    """Detect common objects (COCO 80 classes) using YOLO."""
+    result = detect_objects(image_path=image_path, labels=labels, confidence_threshold=confidence_threshold, max_detections=max_detections)
     return json.dumps(result, ensure_ascii=False)
 
 
 @mcp.tool()
 def vision_detect_by_prompt(
-    image_path: str,
-    prompt: str,
-    box_threshold: float = 0.35,
-    text_threshold: float = 0.25,
+    image_path: str, prompt: str,
+    box_threshold: float = 0.35, text_threshold: float = 0.25,
 ) -> str:
-    """Detect objects by natural language description using Grounding DINO.
+    """Detect objects by natural language description using Grounding DINO."""
+    result = detect_by_prompt(image_path=image_path, prompt=prompt, box_threshold=box_threshold, text_threshold=text_threshold)
+    return json.dumps(result, ensure_ascii=False)
 
-    Use this for finding objects that YOLO doesn't know: power strip, charger,
-    cable, logo, button, text region, etc.
 
-    Prompt format: separate objects with periods, e.g.:
-    "power strip . charger . cable . plug"
+@mcp.tool()
+def vision_segment_by_box(
+    image_path: str, bbox: list[int], output_path: str | None = None,
+) -> str:
+    """Generate a segmentation mask for a bbox region using SAM.
 
-    Returns:
-        JSON string with detected objects, each with label, confidence, and bbox.
+    Returns mask_path and confidence score.
     """
-    result = detect_by_prompt(
-        image_path=image_path,
-        prompt=prompt,
-        box_threshold=box_threshold,
-        text_threshold=text_threshold,
-    )
+    result = segment_by_box(image_path=image_path, bbox=bbox, output_path=output_path)
     return json.dumps(result, ensure_ascii=False)
 
 
 def main():
-    """Run the MCP server via stdio transport."""
     logging.basicConfig(level=logging.INFO)
     logger.info("Starting Vision MCP Server...")
     mcp.run(transport="stdio")
