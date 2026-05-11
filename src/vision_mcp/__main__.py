@@ -1,4 +1,5 @@
-from .server import run
+from vision_mcp.server import main
+
 
 if __name__ == "__main__":
-    run()
+    main()

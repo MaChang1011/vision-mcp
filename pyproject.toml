@@ -1,6 +1,6 @@
 [build-system]
 requires = ["setuptools>=68", "wheel"]
-build-backend = "setuptools.backends._legacy:_Backend"
+build-backend = "setuptools.build_meta"
 
 [project]
 name = "vision-mcp-plan"
@@ -14,9 +14,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-ocr = ["paddlepaddle", "paddleocr"]
+ocr = [
+    "paddlepaddle<3",
+    "paddleocr<3",
+    "Pillow",
+]
 detection = ["ultralytics"]
-opencv = ["opencv-python"]
+opencv = ["opencv-python-headless"]
 grounding = ["groundingdino-py"]
 vlm = ["transformers", "torch", "accelerate"]
 dev = ["pytest", "ruff"]
+
+[tool.setuptools.packages.find]
+where = ["src"]
