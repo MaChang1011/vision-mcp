@@ -1,0 +1,22 @@
+[build-system]
+requires = ["setuptools>=68", "wheel"]
+build-backend = "setuptools.backends._legacy:_Backend"
+
+[project]
+name = "vision-mcp-plan"
+version = "0.1.0"
+description = "Vision capability platform with MCP interface"
+requires-python = ">=3.10"
+dependencies = [
+    "pydantic>=2",
+    "uvicorn>=0.30",
+    "mcp>=1.0",
+]
+
+[project.optional-dependencies]
+ocr = ["paddlepaddle", "paddleocr"]
+detection = ["ultralytics"]
+opencv = ["opencv-python"]
+grounding = ["groundingdino-py"]
+vlm = ["transformers", "torch", "accelerate"]
+dev = ["pytest", "ruff"]
