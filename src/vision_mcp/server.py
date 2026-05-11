@@ -7,6 +7,7 @@ import logging
 
 from mcp.server.fastmcp import FastMCP
 
+from vision_mcp.tools.detection import detect_objects
 from vision_mcp.tools.image_ops import crop_image, preprocess_image
 from vision_mcp.tools.ocr_tools import ocr_image, ocr_image_with_boxes
 
@@ -39,10 +40,7 @@ def vision_preprocess_image(
 ) -> str:
     """Preprocess an image using OpenCV.
 
-    Supported operations in current MVP:
-    - grayscale
-    - denoise
-    - resize
+    Supported operations: grayscale, denoise, resize.
     """
     result = preprocess_image(
         image_path=image_path,
@@ -63,6 +61,27 @@ def vision_crop_image(
 ) -> str:
     """Crop an image by bbox [x1, y1, x2, y2] using OpenCV."""
     result = crop_image(image_path=image_path, bbox=bbox, output_path=output_path)
+    return json.dumps(result, ensure_ascii=False)
+
+
+@mcp.tool()
+def vision_detect_objects(
+    image_path: str,
+    labels: list[str] | None = None,
+    confidence_threshold: float = 0.25,
+    max_detections: int = 100,
+) -> str:
+    """Detect common objects in an image using YOLO.
+
+    Default label space: COCO 80 classes (person, car, dog, cat, ...).
+    Use `labels` to filter to specific classes.
+    """
+    result = detect_objects(
+        image_path=image_path,
+        labels=labels,
+        confidence_threshold=confidence_threshold,
+        max_detections=max_detections,
+    )
     return json.dumps(result, ensure_ascii=False)
 
 
